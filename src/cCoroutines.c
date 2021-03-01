@@ -31,7 +31,7 @@ static void got_token(int token) {
     if(token == PUNCT) puts("got PUNCT");
 }
 
-int parser(void) {
+void parser(void) {
     int i;
     for(i = 0; i < strlen(input2); i++) {
         char c = input2[i];
@@ -48,8 +48,8 @@ int parser(void) {
     }
 }
 
-int decompressor(void) {
-    int i;
+void decompressor(void) {
+    size_t i;
     for(i = 0; i < strlen(input); i += 2) {
         char c = input[i];
         if(c == EOF) break;

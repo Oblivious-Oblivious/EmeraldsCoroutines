@@ -4,10 +4,10 @@ CC = clang
 OPT = -O2
 VERSION = -std=c11
 
-#FLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -Wpedantic
-WARNINGS = 
+FLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -Wpedantic
+WARNINGS = -Wno-pointer-sign -Wno-sign-compare
 UNUSED_WARNINGS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-extra-semi
-REMOVE_WARNINGS = 
+REMOVE_WARNINGS =
 LIBS = 
 
 INPUT = src/$(NAME).c #src/$(NAME)/*.c
