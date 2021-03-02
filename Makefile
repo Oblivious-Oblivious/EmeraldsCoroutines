@@ -21,10 +21,11 @@ all: default
 
 default:
 	$(CC) $(OPT) $(VERSION) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) $(LIBS) -o $(OUTPUT) $(INPUT)
-	$(RM) -r export && mkdir export && mkdir export/$(NAME) && mkdir export/$(NAME)/headers
+	#$(RM) -r export && mkdir export && mkdir export/$(NAME) && mkdir export/$(NAME)/headers
 	#cp src/$(NAME)/headers/* export/$(NAME)/headers/
 	#cp src/$(NAME).h export/
-	mv $(OUTPUT) export/$(OUTPUT).app
+	$(RM) -r export && mkdir export
+	mv $(OUTPUT) export/$(OUTPUT)
 
 lib: default
 

@@ -3,4 +3,6 @@
 
 #include "../src/cCoroutines.h"
 
+#include <stdio.h>
+
 #endif
