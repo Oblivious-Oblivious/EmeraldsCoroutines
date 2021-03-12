@@ -5,38 +5,54 @@ OPT = -O2
 VERSION = -std=c11
 
 FLAGS = -Wall -Wextra -Werror -pedantic -pedantic-errors -Wpedantic
-WARNINGS = -Wno-pointer-sign -Wno-sign-compare
+WARNINGS = -Wno-incompatible-pointer-types -Wno-pointer-sign -Wno-sign-compare
 UNUSED_WARNINGS = -Wno-unused-parameter -Wno-unused-variable -Wno-unused-function -Wno-extra-semi
-REMOVE_WARNINGS =
-LIBS = 
+REMOVE_WARNINGS = -Wno-int-conversion
+NIX_LIBS = -shared -fPIC
+OSX_LIBS = -c
+DEPS = $(shell find ./export -name "*.*o") $(shell find ./libs -name "*.*o")
 
-INPUT = src/$(NAME).c #src/$(NAME)/*.c
+#INPUTFILES = src/$(NAME)/*.c
+INPUT = src/$(NAME).c
 OUTPUT = $(NAME)
 
-#TESTFILES = ../src/$(NAME)/*.c
-TESTINPUT = $(NAME).spec.c
+TESTFILES = src/$(NAME)/*.c
+TESTINPUT = spec/$(NAME).spec.c
 TESTOUTPUT = spec_results
 
 all: default
 
-default:
-	$(CC) $(OPT) $(VERSION) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) $(LIBS) -o $(OUTPUT) $(INPUT)
-	#$(RM) -r export && mkdir export && mkdir export/$(NAME) && mkdir export/$(NAME)/headers
-	#cp src/$(NAME)/headers/* export/$(NAME)/headers/
-	#cp src/$(NAME).h export/
+make_export:
 	$(RM) -r export && mkdir export
-	mv $(OUTPUT) export/$(OUTPUT)
 
-lib: default
+copy_headers:
+	mkdir export/$(NAME) && mkdir export/$(NAME)/headers
+	cp -r src/$(NAME)/headers/* export/$(NAME)/headers/
+	cp src/$(NAME).h export/
+
+default: make_export
+	$(CC) $(OPT) $(VERSION) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) $(LIBS) -o $(OUTPUT) $(INPUT) $(INPUTFILES) $(DEPS)
+	mv $(OUTPUT) export/
+
+lib: $(shell uname)
+	cp $(shell find ./libs -name "*.*o") export/
+
+Darwin: make_export copy_headers
+	$(CC) $(OPT) $(VERSION) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) $(OSX_LIBS) $(INPUTFILES)
+	mv *.o export/
+
+Linux: make_export copy_headers
+	$(CC) $(OPT) $(VERSION) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) $(NIX_LIBS) -o $(OUTPUT).so $(INPUTFILES)
+	mv $(OUTPUT).so export/
 
 test:
-	cd spec && $(CC) $(OPT) $(VERSION) $(HEADERS) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) $(LIBS) -o $(TESTOUTPUT) $(TESTFILES) $(TESTINPUT)
+	$(CC) $(OPT) $(VERSION) $(HEADERS) $(FLAGS) $(WARNINGS) $(REMOVE_WARNINGS) $(UNUSED_WARNINGS) -Wno-implicit-function-declaration $(LIBS) -o $(TESTOUTPUT) $(DEPS) $(TESTFILES) $(TESTINPUT)
 	@echo
-	./spec/$(TESTOUTPUT)
+	./$(TESTOUTPUT)
 
 spec: test
 
 clean:
-	$(RM) -r spec/$(TESTOUTPUT)
+	$(RM) -r $(TESTOUTPUT)
 	$(RM) -r export
 
